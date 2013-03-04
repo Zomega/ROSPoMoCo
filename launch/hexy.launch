@@ -1,0 +1,4 @@
+<launch>
+	<node name="talker" pkg="ROSPoMoCo" type="talker.py" />
+	<node name="PoMoCo" pkg="ROSPoMoCo" type="PoMoCo.py" />
+</launch>
