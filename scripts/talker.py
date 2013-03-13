@@ -9,7 +9,7 @@ def talker():
 	rospy.init_node('talker')
 	rospy.loginfo("Starting talker")
 	while not rospy.is_shutdown():
-		string = 'Test'
+		string = 'Reset'
 		rospy.loginfo(rospy.get_name() + " is sending a command to do: " + string)
 		pub.publish(String(string))
 		rospy.sleep(4.0)
