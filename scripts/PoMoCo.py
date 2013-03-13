@@ -97,6 +97,7 @@ if __name__ == '__main__':
 	rospy.Subscriber("moves", String, callback)
 	
 	# Prevent the node from exiting until so ordered.
+	rospy.loginfo("PoMoCo is entering spin!")
 	rospy.spin()
 	
 	# The program only reaches this point if the ROSNode has been closed.
