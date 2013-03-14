@@ -4,10 +4,23 @@ import roslib
 roslib.load_manifest('ROSPoMoCo')
 import rospy
 
-class physical_servo( servo ):
-	def __init__(self,servoNum,serHandler,servoPos=1500,offset=0,active=False):
+def degree_to_uS( angle ):
+	# Convert the value to uS...
+	timing = ( angle - 1500 ) / 11.1111111
 	
-		self.serHandler = serHandler
+	# Clip the output to bound within 500uS to 2500uS
+	# these are the limits of the servos
+	if timing < 500:
+		timing = 500
+	if timing > 2500:
+		timing = 2500
+		
+	return timing
+	
+class physical_servo( servo ):
+	def __init__(self,servoNum,serialHandler,servoPos=1500,offset=0,active=False):
+	
+		self.serialHandler = serialHandler
 		
 		if active:
 			self.attach()
@@ -57,8 +70,8 @@ class physical_servo( servo ):
 		self.move()
 
 	def kill(self):
-		self.detach()
-		self.serHandler.send( "#%dL\r"%(self.servoNum) )
+		servo.detach( self )
+		self.serialHandler.send( "#%dL\r"%(self.servoNum) )
 		
 	def move(self):
 		if self.isAttached():
@@ -70,9 +83,10 @@ class physical_servo( servo ):
 				servoPos = 2500
 				
 			# Send the message the serial handler
-			self.serHandler.send( "#%dP%.4dT0\r"%(self.servoNum,int(servoPos)) )
+			self.serialHandler.send( "#%dP%.4dT0\r"%(self.servoNum,int(servoPos)) )
 		else:
 			try:
-				self.serHandler.send( "#%.4dL\r"%(self.servoNum,int(servoPos)) )
+				# TODO: Shouldn't this value be clipped?
+				self.serialHandler.send( "#%.4dL\r"%(self.servoNum,int(servoPos)) )
 			except:
 				pass

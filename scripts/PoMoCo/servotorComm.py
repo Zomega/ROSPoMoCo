@@ -21,6 +21,7 @@ BAUD_RATE = 9600
 # Used by the GUI to ensure responsiveness while running moves.
 # Depreciated, ROS can handle the specifics using topics...
 # TODO: Remove once GUI has been spun off.
+# TODO: Move name translator node should keep a Queue?
 class runMovement(threading.Thread):
 
 	def __init__(self,function,*args):
@@ -151,6 +152,7 @@ class serHandler(threading.Thread):
 		rospy.logdebug( "Sending serial message: " + str( message ) )
 		self.sendLock.release()
 
+# Software model of the Servator32 board ( might work for other boards? ).
 class Controller:
 	def __init__(self,servos=32):
 		self.serialHandler = serHandler()
@@ -162,7 +164,7 @@ class Controller:
 		rospy.loginfo("Initializing servos.")
 		self.servos = {}
 		for i in range(32):
-			self.servos[i]=physical_servo(i,serHandler=self.serialHandler)
+			self.servos[i]=physical_servo(i,serialHandler=self.serialHandler)
 			self.servos[i].kill()
 		rospy.loginfo("Servos initialized.")
 
