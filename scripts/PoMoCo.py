@@ -4,7 +4,8 @@
 #	ROS imports
 ##############################################################################
 
-import roslib; roslib.load_manifest('beginner_tutorials')
+import roslib
+roslib.load_manifest('ROSPoMoCo')
 import rospy
 from std_msgs.msg import String
 
@@ -81,7 +82,6 @@ if __name__ == '__main__':
 	rospy.init_node('PoMoCo')
 	
 	# Initialize the servo controller
-	rospy.loginfo("Starting Servo Driver.")
 	controller = servotorComm.Controller()
 	
 	# Set up the servo controller to run Hexy

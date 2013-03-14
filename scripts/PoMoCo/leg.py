@@ -15,6 +15,7 @@ from ROSPoMoCo.msg import leg_pose
 # Anything higher than 50 is pointless ( faster than the maximum refresh of standard servos ).
 stepPerS = 5
 
+# TODO: Some of this class should move to the IK solver...
 class leg():
 
 	def __init__(self,con,name,hipServoNum,kneeServoNum,ankleServoNum,simOrigin=(0,3,0)):
@@ -23,9 +24,6 @@ class leg():
 		self.hipServoNum = hipServoNum
 		self.kneeServoNum = kneeServoNum
 		self.ankleServoNum = ankleServoNum
-		l = leg_pose()
-		l.hip_angle = 2
-		rospy.logwarn(l)
 		
 	def get_pose( self ):
 		# TODO test!

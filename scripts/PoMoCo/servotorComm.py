@@ -4,6 +4,10 @@ import serial
 import serial.tools.list_ports
 import threading
 
+import roslib
+roslib.load_manifest('ROSPoMoCo')
+import rospy
+
 startTime = time.clock()
 serialSends = []
 
@@ -61,9 +65,9 @@ class serHandler(threading.Thread):
 					if self.ser.writable:
 						if self.serOpen:
 							self.ser.write(str(toSend))
-							print "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1)
+							rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
 			if debug:
-				print "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1)
+				rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
 
 			# Retrieve waiting responses
 			# TODO: Don't need reading yet, holding off on fully implementing it till needed.
@@ -89,14 +93,14 @@ class serHandler(threading.Thread):
 							comList.append(thing)
 			
 			comList = list(set(comList))
-			print "Attempting to connect to Servotor"
+			rospy.loginfo( "Attempting to connect to Servotor" )
 			for port in comList:
 					try:
 							ser = serial.Serial(port, baudrate= BAUD_RATE, timeout=2)
 							ser.write('V\n')
 							result = ser.readline()
 							if "SERVOTOR" in result:
-									print "Connect Successful! Connected on port:",port
+									rospy.loginfo( "Connect Successful! Connected on port:",port )
 									self.ser = ser
 									self.ser.flush()
 									self.serOpen = True
@@ -105,7 +109,7 @@ class serHandler(threading.Thread):
 					except:
 							pass
 			if self.serOpen == False:
-				print "Trying Windows Method"
+				rospy.logwarn( "Connection not yet open. Trying Windows Method.")
 				for i in range(1,100):
 					try:
 						try:
@@ -121,7 +125,7 @@ class serHandler(threading.Thread):
 						readReply = ser.readline()
 						#print "read:",readReply
 						if "SERVOTOR" in readReply:
-							print "Connect Successful! Connected on port COM"+str(i+1)
+							rospy.loginfo( "Connect Successful! Connected on port COM"+str(i+1) )
 							ser.flush()
 							self.ser = ser
 							self.serNum = i
@@ -144,14 +148,13 @@ class Controller:
 		while not (self.serialHandler.serOpen or (time.time()-timeout > 10.0)):
 			time.sleep(0.01)
 		if self.serialHandler.serOpen == False:
-			print "Connection to Servotor failed. No robot movement will occur."
-		print "Initializing servos."
+			rospy.logerr( "Connection to Servotor failed. No robot movement will occur.")
+		rospy.loginfo("Initializing servos.")
 		self.servos = {}
 		for i in range(32):
 			self.servos[i]=PhysicalServo(i,serHandler=self.serialHandler)
 			self.servos[i].kill()
-
-		print "Servos initialized."
+		rospy.loginfo("Servos initialized.")
 
 	def __del__(self):
 		del self.serialHandler
@@ -160,7 +163,7 @@ class Controller:
 		if self.serialHandler.serOpen:
 			for servo in self.servos:
 				self.servos[servo].kill()
-		print "Killing all servos."
+		rospy.loginfo("Killing all servos.")
 
 if __name__ == '__main__':
 	conn = Controller()
