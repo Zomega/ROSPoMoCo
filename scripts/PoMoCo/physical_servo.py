@@ -1,8 +1,10 @@
 from servo import *
 
-debug = False
+import roslib
+roslib.load_manifest('ROSPoMoCo')
+import rospy
 
-class PhysicalServo( Servo ):
+class physical_servo( servo ):
 	def __init__(self,servoNum,serHandler,servoPos=1500,offset=0,active=False):
 		self.serHandler = serHandler
 		self.active = active
@@ -21,8 +23,8 @@ class PhysicalServo( Servo ):
 		if move:
 			self.active = True
 			self.move()
-			if debug: print "Moved ",self.servoNum
-		if debug: print "Servo",self.servoNum,"set to",self.servoPos
+			rospy.logdebug( "Moved " + str( self.servoNum ) )
+		rospy.logdebug( "Servo " + str( self.servoNum ) + " set to " + str( self.servoPos ) )
 
 	def getPosDeg(self):
 		return (self.servoPos-1500)/11.1111111
@@ -51,12 +53,7 @@ class PhysicalServo( Servo ):
 
 	def kill(self):
 		self.active = False
-		toSend = "#%dL\r"%(self.servoNum)
-		self.serHandler.sendLock.acquire()
-		self.serHandler.sendQueue.append(toSend)
-		self.serHandler.sendLock.release()
-		if debug: print "Sending command #%dL to queue"%self.servoNum
-
+		self.serHandler.send( "#%dL\r"%(self.servoNum) )
 	def move(self):
 		if self.active:
 			servoPos = self.servoPos+self.offset
@@ -66,20 +63,10 @@ class PhysicalServo( Servo ):
 			if servoPos > 2500:
 				servoPos = 2500
 				
-			# Debug message if needed
-			if debug: print "Sending command #%dP%dT0 to queue"%(self.servoNum,int(servoPos))
-
-			# Send the message the serial handler in a thread-safe manner
-			toSend = "#%dP%.4dT0\r"%(self.servoNum,int(servoPos))
-			self.serHandler.sendLock.acquire()
-			self.serHandler.sendQueue.append(toSend)
-			self.serHandler.sendLock.release()
+			# Send the message the serial handler
+			self.serHandler.send( "#%dP%.4dT0\r"%(self.servoNum,int(servoPos)) )
 		else:
 			try:
-				toSend = "#%.4dL\r"%(self.servoNum,int(servoPos))
-				self.serHandler.sendLock.acquire()
-				self.serHandler.sendQueue.append(toSend)
-				self.serHandler.sendLock.release()
-				if debug: print "Sending command #%dL to queue"%self.servoNum
+				self.serHandler.send( "#%.4dL\r"%(self.servoNum,int(servoPos)) )
 			except:
 				pass

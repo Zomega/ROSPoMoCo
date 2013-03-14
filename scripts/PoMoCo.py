@@ -94,6 +94,7 @@ if __name__ == '__main__':
 	rospy.loginfo("Loading move files.")
 	initMoves()
 	
+	# Subscribe to /moves, where we will receive commands.
 	rospy.Subscriber("moves", String, callback)
 	
 	# Prevent the node from exiting until so ordered.

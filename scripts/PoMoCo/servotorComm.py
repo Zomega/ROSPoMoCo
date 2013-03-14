@@ -4,6 +4,11 @@ import serial
 import serial.tools.list_ports
 import threading
 
+# Load servo architecture...
+from servo import *
+from virtual_servo import *
+from physical_servo import *
+
 import roslib
 roslib.load_manifest('ROSPoMoCo')
 import rospy
@@ -13,6 +18,9 @@ serialSends = []
 
 BAUD_RATE = 9600
 
+# Used by the GUI to ensure responsiveness while running moves.
+# Depreciated, ROS can handle the specifics using topics...
+# TODO: Remove once GUI has been spun off.
 class runMovement(threading.Thread):
 
 	def __init__(self,function,*args):
@@ -26,8 +34,8 @@ class runMovement(threading.Thread):
 
 class serHandler(threading.Thread):
 
-	def __init__(self):
-		threading.Thread.__init__(self)
+	def __init__( self ):
+		threading.Thread.__init__( self )
 
 		self.ser = None
 
@@ -42,10 +50,10 @@ class serHandler(threading.Thread):
 
 		self.start()
 
-	def __del__(self):
+	def __del__( self ):
 		self.ser.close()
 
-	def run(self):
+	def run( self ):
 		self.connect()
 		while(True):
 			# Send waiting messages
@@ -56,18 +64,18 @@ class serHandler(threading.Thread):
 				self.sendLock.release()
 				send = True
 			else:
-				time.sleep(0.01) # Keeps infinite while loop from killing processor
+				time.sleep(0.01) # Keeps infinite while loop from wasting processor cycles.
 			if send:
 				sendTime = time.clock()-startTime
 				serialSends.append([float(sendTime),str(toSend)])
 				time.sleep(0.003)
+				# TODO: Determine if the double check of self.serOpen is needed.
 				if self.serOpen:
 					if self.ser.writable:
 						if self.serOpen:
 							self.ser.write(str(toSend))
 							rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
-			if debug:
-				rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
+			rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
 
 			# Retrieve waiting responses
 			# TODO: Don't need reading yet, holding off on fully implementing it till needed.
@@ -136,10 +144,12 @@ class serHandler(threading.Thread):
 							pass
 					except:
 						pass
-
-from servo import *
-from virtual_servo import *
-from physical_servo import *
+						
+	def send( self, message ):
+		self.sendLock.acquire()
+		self.sendQueue.append( str( message ) )
+		rospy.logdebug( "Sending serial message: " + str( message ) )
+		self.sendLock.release()
 
 class Controller:
 	def __init__(self,servos=32):
@@ -152,7 +162,7 @@ class Controller:
 		rospy.loginfo("Initializing servos.")
 		self.servos = {}
 		for i in range(32):
-			self.servos[i]=PhysicalServo(i,serHandler=self.serialHandler)
+			self.servos[i]=physical_servo(i,serHandler=self.serialHandler)
 			self.servos[i].kill()
 		rospy.loginfo("Servos initialized.")
 
