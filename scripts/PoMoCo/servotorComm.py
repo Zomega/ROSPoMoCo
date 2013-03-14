@@ -57,16 +57,13 @@ class serHandler(threading.Thread):
 	def run( self ):
 		self.connect()
 		while(True):
-			# Send waiting messages
-			send = False
+			# If there are messages waiting, send the first one...
 			if(len(self.sendQueue)>0):
+			
 				self.sendLock.acquire()
 				toSend = self.sendQueue.pop(0)
 				self.sendLock.release()
-				send = True
-			else:
-				time.sleep(0.01) # Keeps infinite while loop from wasting processor cycles.
-			if send:
+				
 				sendTime = time.clock()-startTime
 				serialSends.append([float(sendTime),str(toSend)])
 				time.sleep(0.003)
@@ -74,9 +71,12 @@ class serHandler(threading.Thread):
 				if self.serOpen:
 					if self.ser.writable:
 						if self.serOpen:
-							self.ser.write(str(toSend))
+							toSend = toSend
+							self.ser.write( str(toSend) )
 							rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
-			rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
+			
+			else:
+				time.sleep(0.01) # Keeps infinite while loop from wasting processor cycles.
 
 			# Retrieve waiting responses
 			# TODO: Don't need reading yet, holding off on fully implementing it till needed.
@@ -151,32 +151,50 @@ class serHandler(threading.Thread):
 		self.sendQueue.append( str( message ) )
 		rospy.logdebug( "Sending serial message: " + str( message ) )
 		self.sendLock.release()
-
-# Software model of the Servator32 board ( might work for other boards? ).
-class Controller:
-	def __init__(self,servos=32):
+		
+# Software model of the Servator32 board.
+class Servotor32:
+	def __init__( self ):
+		# Open a serial connection to the board, if possible.
 		self.serialHandler = serHandler()
-		timeout = time.time()
-		while not (self.serialHandler.serOpen or (time.time()-timeout > 10.0)):
-			time.sleep(0.01)
+		starttime = time.time()
+		while not ( self.serialHandler.serOpen or (time.time() - starttime > 10.0) ):
+			time.sleep(0.01) # Make sure we use a minimal amount of processor time.
 		if self.serialHandler.serOpen == False:
-			rospy.logerr( "Connection to Servotor failed. No robot movement will occur.")
-		rospy.loginfo("Initializing servos.")
-		self.servos = {}
-		for i in range(32):
-			self.servos[i]=physical_servo(i,serialHandler=self.serialHandler)
-			self.servos[i].kill()
-		rospy.loginfo("Servos initialized.")
-
-	def __del__(self):
-		del self.serialHandler
-
-	def killAll(self):
-		if self.serialHandler.serOpen:
-			for servo in self.servos:
-				self.servos[servo].kill()
-		rospy.loginfo("Killing all servos.")
-
-if __name__ == '__main__':
-	conn = Controller()
+			rospy.logerr( "Connection to Servotor32 board failed. No robot movement will occur.")
+			
+		#TODO: This is not a very good name.
+		self.servos = { physical_servo( self ) : i for i in range(32) }
+		
+		# Ensure the physical servos relax.
+		self.detachAll()
+			
+	def getServo( self, i ):
+		if i >= 32 or i < 0:
+			rospy.logerr( "Queried the Servotor32 for servo " + str(i) + ". This is an invalid index. " )
+			return None
+		# The result should be in our dictionary. We just need to look it up.
+		for serv in self.servos:
+			if self.servos[ serv ] == i:
+				return serv
+				
+	def detachAll( self ):
+		for serv in self.servos:
+			serv.detach()
+			
+	def notify( self, serv ):
+		try:
+			# If the servo should be tensed...
+			if serv.isAttached():	
+				# Send the message the serial handler
+				self.serialHandler.send( "#%dP%.4dT0\r"%( self.servos[ serv ], int( serv.__timing__ ) ) )
+			# If the servo should be relaxed...
+			else:
+				#TODO what exactly goes here? Seems to throw an awful lot of exceptions.
+				self.serialHandler.send( "#%.4dL\r"%( self.servos[ serv ], int( serv.__timing__ ) ) )
+				
+		# If the an exception is thrown, then keep going...
+		# TODO: what is the use case here precisely?
+		except Exception as e:
+			rospy.logwarn( "Attempts to use serial threw an exception: \"" + str( e ) + "\". Continuing..." )
 

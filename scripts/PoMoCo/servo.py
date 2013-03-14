@@ -5,7 +5,7 @@ class servo:
 	def __init__( self, position = 0, offset = 0, attached = False ):
 		self.position = position
 		self.offset = offset
-		self.attached = False
+		self.attached = attached
 	# Set the servo position in degrees.
 	def setPosition( self, position ):
 		self.position = position
@@ -16,14 +16,17 @@ class servo:
 	def setOffset( self, offset ):
 		self.offset = offset
 	# Get the servo offset ( zero position ) in degrees.
-	def getOffset( self, offset ):
+	def getOffset( self ):
 		return self.offset
+	# Set the servo to the zero position
+	def reset( self ):
+		self.setPosition( 0 )
 	# Return the current status of the servo as a Boolean.
 	def isAttached( self ):
 		return self.attached
-	# Attach and tense the physical servo.
+	# Attach and tense the servo.
 	def attach( self ):
 		self.attached = True
-	# Detach and relax the physical servo.
+	# Detach and relax the servo.
 	def detach( self ):
 		self.attached = False

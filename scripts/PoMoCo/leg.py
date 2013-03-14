@@ -17,23 +17,23 @@ stepPerS = 5
 
 # TODO: Some of this class should move to the IK solver...
 class leg():
-
-	def __init__(self,con,name,hipServoNum,kneeServoNum,ankleServoNum,simOrigin=(0,3,0)):
-		self.con = con
+	#TODO what is simOrigin?
+	def __init__(self, name, hipServo, kneeServo, ankleServo,simOrigin=(0,3,0)):
 		self.name = name
-		self.hipServoNum = hipServoNum
-		self.kneeServoNum = kneeServoNum
-		self.ankleServoNum = ankleServoNum
+		self.hipServo = hipServo
+		self.kneeServo = kneeServo
+		self.ankleServo = ankleServo
 		
 	def get_pose( self ):
 		# TODO test!
 		def degrees_to_uint8( degrees ):
 			return ( degrees * 2 ** 8 ) / 180
 		pose = leg_pose()
-		pose.hip_angle = degrees_to_uint8( self.con.servos[self.hipServoNum].getOffsetDeg() )
-		pose.knee_angle = degrees_to_uint8( self.con.servos[self.kneeServoNum].getOffsetDeg() )
-		pose.ankle_angle = degrees_to_uint8( self.con.servos[self.ankleServoNum].getOffsetDeg() )
+		pose.hip_angle = degrees_to_uint8( self.hipServo.getPosition() )
+		pose.knee_angle = degrees_to_uint8( self.kneeServo.getPosition() )
+		pose.ankle_angle = degrees_to_uint8( self.ankleServo.getPosition() )
 		return pose
+		
 	def set_pose( self, pose ):
 		# TODO test!
 		def uint8_to_degrees( unit8 ):
@@ -44,21 +44,24 @@ class leg():
 
 	def hip(self, deg):
 		if deg == "sleep":
-			self.con.servos[self.hipServoNum].kill()
+			self.hipServo.detach()
 		else:
-			self.con.servos[self.hipServoNum].setPos(deg=deg)
+			self.hipServo.attach()
+			self.hipServo.setPosition( deg )
 
 	def knee(self, deg):
 		if deg == "sleep":
-			self.con.servos[self.hipServoNum].kill()
+			self.kneeServo.detach()
 		else:
-			self.con.servos[self.kneeServoNum].setPos(deg=deg)
+			self.kneeServo.attach()
+			self.kneeServo.setPosition( deg )
 
 	def ankle(self, deg):
 		if deg == "sleep":
-			self.con.servos[self.hipServoNum].kill()
+			self.ankleServo.detach()
 		else:
-			self.con.servos[self.ankleServoNum].setPos(deg=deg)
+			self.ankleServo.attach()
+			self.ankleServo.setPosition( deg )
 
 	def setHipDeg(self,endHipAngle,stepTime=1):
 		runMovement(self.setHipDeg_function,endHipAngle,stepTime)
@@ -70,7 +73,7 @@ class leg():
 		runMovement(self.replantFoot_function,endHipAngle,stepTime)
 
 	def setHipDeg_function(self,endHipAngle,stepTime):
-		currentHipAngle = self.con.servos[self.hipServoNum].getPosDeg()
+		currentHipAngle = self.hipServo.getPosition()
 		hipMaxDiff = endHipAngle-currentHipAngle
 
 		steps = range(int(stepPerS))
@@ -83,7 +86,7 @@ class leg():
 			except:
 				anglNorm=hipAngle*(180/(1))
 			hipAngle = currentHipAngle+hipAngle
-			self.con.servos[self.hipServoNum].setPos(deg=hipAngle)
+			self.hipServo.setPosition(hipAngle)
 
 			#wait for next cycle
 			time.sleep(stepTime/float(stepPerS))
@@ -97,15 +100,15 @@ class leg():
 			kneeAngle = math.degrees(math.asin(float(footY)/75.0))
 			ankleAngle = 90-kneeAngle
 
-			self.con.servos[self.kneeServoNum].setPos(deg=kneeAngle)
-			self.con.servos[self.ankleServoNum].setPos(deg=-ankleAngle)
+			self.kneeServo.setPosition( kneeAngle )
+			self.ankleServo.setPosition( -ankleAngle )
 
 	def replantFoot_function(self,endHipAngle,stepTime):
 	# Smoothly moves a foot from one position on the ground to another in time seconds
 	# TODO: implement time-movements the servo commands sent for far fewer total servo
 	#	   commands
 
-		currentHipAngle = self.con.servos[self.hipServoNum].getPosDeg()
+		currentHipAngle = self.hipServo.getPosition()
 
 		hipMaxDiff = endHipAngle-currentHipAngle
 
@@ -134,7 +137,7 @@ class leg():
 			# Set foot height
 			self.setFootY(footY,stepTime=0)
 			hipAngle = currentHipAngle+hipAngle
-			self.con.servos[self.hipServoNum].setPos(deg=hipAngle)
+			self.hipServo.setPosition( hipAngle )
 
 			# Wait for next cycle
 			time.sleep(stepTime/float(stepPerS))

@@ -40,10 +40,12 @@ from robot import hexapod
 def callback(data):
 	moveName = data.data
 	rospy.loginfo( rospy.get_name() + " received a command to do: " + moveName )
+	moveName = moveName.replace(" ","")
 	if moveName in moves:
 		move( moveName )
 	else:
 		rospy.logwarn( "Unknown move \"" + moveName + "\" sent. Ignoring." )
+		rospy.logwarn( str(moves) )
 	
 ##############################################################################
 #	PoMoCo functions
@@ -55,15 +57,14 @@ def initMoves():
 	moves = []
 	for fileName in os.listdir( scriptDirectory + '/Moves' ):
 		if os.path.splitext(fileName)[1] == '.py':
-			fileName = os.path.splitext(fileName)[0]
-			s1 = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', fileName)
-			moves.append(s1)
-			__builtins__.moves = moves
+			moveName = os.path.splitext(fileName)[0]
+			moves.append(moveName)
+		__builtins__.moves = moves
 	
 	# Function for running move files
 	def move(moveName):
 		rospy.loginfo("Performing move: "+moveName)
-		moveName = moveName.replace(' ','')
+		moveName = moveName.replace(" ","")
 		if moveName in sys.modules:
 			reload(sys.modules[moveName])
 		else:
@@ -82,7 +83,7 @@ if __name__ == '__main__':
 	rospy.init_node('PoMoCo')
 	
 	# Initialize the servo controller
-	controller = servotorComm.Controller()
+	controller = servotorComm.Servotor32()
 	
 	# Set up the servo controller to run Hexy
 	rospy.loginfo("Initializing Hexapod Datastructures.")

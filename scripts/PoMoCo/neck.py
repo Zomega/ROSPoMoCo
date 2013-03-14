@@ -1,7 +1,6 @@
 class neck():
-	def __init__(self,con,servoNum):
-		self.con = con
-		self.servoNum = servoNum
+	def __init__(self, neckServo):
+		self.neckServo = neckServo
 
-	def set(self,deg):
-		self.con.servos[self.servoNum].setPos(deg=deg)
+	def set( self, deg ):
+		self.neckServo.setPosition( deg )
