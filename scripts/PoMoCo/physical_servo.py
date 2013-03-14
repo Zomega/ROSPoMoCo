@@ -6,8 +6,13 @@ import rospy
 
 class physical_servo( servo ):
 	def __init__(self,servoNum,serHandler,servoPos=1500,offset=0,active=False):
+	
 		self.serHandler = serHandler
-		self.active = active
+		
+		if active:
+			self.attach()
+		else:
+			self.detach()
 		self.servoNum = servoNum
 
 		# Servo position and offset is stored in microseconds (uS)
@@ -21,7 +26,7 @@ class physical_servo( servo ):
 		if deg != None:
 			self.servoPos = int(1500.0+float(deg)*11.1111111)
 		if move:
-			self.active = True
+			self.attach()
 			self.move()
 			rospy.logdebug( "Moved " + str( self.servoNum ) )
 		rospy.logdebug( "Servo " + str( self.servoNum ) + " set to " + str( self.servoPos ) )
@@ -33,7 +38,7 @@ class physical_servo( servo ):
 		return self.servoPos
 
 	def getActive(self):
-		return self.active
+		return self.isAttached()
 
 	def getOffsetDeg(self):
 		return (self.offset-1500)/11.1111111
@@ -52,10 +57,11 @@ class physical_servo( servo ):
 		self.move()
 
 	def kill(self):
-		self.active = False
+		self.detach()
 		self.serHandler.send( "#%dL\r"%(self.servoNum) )
+		
 	def move(self):
-		if self.active:
+		if self.isAttached():
 			servoPos = self.servoPos+self.offset
 			# Auto-correct the output to bound within 500uS to 2500uS signals, the limits of the servos
 			if servoPos < 500:
