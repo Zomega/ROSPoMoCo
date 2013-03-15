@@ -24,23 +24,23 @@ class Leg():
 		self.kneeServo = kneeServo
 		self.ankleServo = ankleServo
 		
-	def get_pose( self ):
+	def getPose( self ):
 		# TODO test!
 		def degrees_to_uint8( degrees ):
 			return ( degrees * 2 ** 8 ) / 180
-		pose = leg_pose()
-		pose.hip_angle = degrees_to_uint8( self.hipServo.getPosition() )
-		pose.knee_angle = degrees_to_uint8( self.kneeServo.getPosition() )
-		pose.ankle_angle = degrees_to_uint8( self.ankleServo.getPosition() )
-		return pose
+		currentPose = leg_pose()
+		currentPose.hip_angle = degrees_to_uint8( self.hipServo.getPosition() )
+		currentPose.knee_angle = degrees_to_uint8( self.kneeServo.getPosition() )
+		currentPose.ankle_angle = degrees_to_uint8( self.ankleServo.getPosition() )
+		return currentPose
 		
-	def set_pose( self, pose ):
+	def setPose( self, newPose ):
 		# TODO test!
 		def uint8_to_degrees( unit8 ):
 			return ( uint8 * 180 ) / 2 ** 8
-		self.hip( uint8_to_degrees(  pose.hip_angle ) )
-		self.knee( uint8_to_degrees(  pose.hip_angle ) )
-		self.ankle( uint8_to_degrees(  pose.ankle_angle ) )	
+		self.hip( uint8_to_degrees(  newPose.hip_angle ) )
+		self.knee( uint8_to_degrees(  newPose.hip_angle ) )
+		self.ankle( uint8_to_degrees(  newPose.ankle_angle ) )	
 
 	def hip(self, deg):
 		if deg == "sleep":

@@ -8,7 +8,6 @@ import rospy
 from ROSPoMoCo.msg import pose
 
 class Hexapod:
-
 	def __init__( self, con ):
 		self.con = con		
 		self.RF	= Leg('rightFront',	con.getServo(24), con.getServo(25), con.getServo(26) )
@@ -32,33 +31,26 @@ class Hexapod:
 		self.tripod1 = [self.RF,self.RB,self.LM]
 		self.tripod2 = [self.LF,self.LB,self.RM]
 		
-	def get_pose( self ):
-		Pose = pose()
-		
-		Pose.left_front = self.LF.get_pose()
-		Pose.left_middle = self.LM.get_pose()
-		Pose.left_back = self.LB.get_pose()
-		
-		Pose.right_front = self.RF.get_pose()
-		Pose.right_middle = self.RM.get_pose()
-		Pose.right_back = self.RB.get_pose()
-		
-		return Pose
-		
-	def set_pose( self, Pose ):
+	def getPose( self ):
 		# TODO test!
-		self.LF.set_pose( Pose.left_front )
-		self.LM.set_pose( Pose.left_middle )
-		self.LB.set_pose( Pose.left_back )
+		currentPose = pose()
 		
-		self.RF.set_pose( Pose.right_front )
-		self.RM.set_pose( Pose.right_middle )
-		self.RB.set_pose( Pose.right_back )
+		currentPose.left_front = self.LF.getPose()
+		currentPose.left_middle = self.LM.getPose()
+		currentPose.left_back = self.LB.getPose()
 		
-	def set_pose( self, pose ):
+		currentPose.right_front = self.RF.getPose()
+		currentPose.right_middle = self.RM.getPose()
+		currentPose.right_back = self.RB.getPose()
+		
+		return currentPose
+		
+	def setPose( self, newPose ):
 		# TODO test!
-		def uint8_to_degrees( unit8 ):
-			return ( uint8 * 180 ) / 2 ** 8
-		self.hip( uint8_to_degrees(  pose.hip_angle ) )
-		self.knee( uint8_to_degrees(  pose.hip_angle ) )
-		self.ankle( uint8_to_degrees(  pose.ankle_angle ) )	
+		self.LF.set_pose( newPose.left_front )
+		self.LM.set_pose( newPose.left_middle )
+		self.LB.set_pose( newPose.left_back )
+		
+		self.RF.set_pose( newPose.right_front )
+		self.RM.set_pose( newPose.right_middle )
+		self.RB.set_pose( newPose.right_back )
