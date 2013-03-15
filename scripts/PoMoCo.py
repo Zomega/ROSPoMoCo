@@ -58,18 +58,18 @@ def initMoves():
 		if os.path.splitext(fileName)[1] == '.py':
 			moveName = os.path.splitext(fileName)[0]
 			moves.append(moveName)
-		__builtins__.moves = moves
 	
 	# Function for running move files
 	def move(moveName):
 		rospy.loginfo("Performing move: "+moveName)
-		moveName = moveName.replace(" ","")
+		moveName = moveName.replace(" ","") # TODO: Figure out if this is needed...
 		if moveName in sys.modules:
 			reload(sys.modules[moveName])
 		else:
 			__import__(moveName)
 	
-	# Make move global.
+	# Make everything global.
+	__builtins__.moves = moves
 	__builtins__.move = move
 
 ##############################################################################
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 	controller = servotorComm.Servotor32()
 	
 	# Set up the servo controller to run Hexy
-	rospy.loginfo("Initializing Hexapod Datastructures.")
+	rospy.loginfo("Initializing Hexapod Datastructure.")
 	hexy = Hexapod(controller)
 	__builtins__.hexy = hexy # sets 'hexy' to be a global variable common to all modules
 	__builtins__.floor = 60  # this is the minimum level the legs will reach

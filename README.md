@@ -1,7 +1,7 @@
 ROSPoMoCo
 ==========
 
-Port of PoMoCo to a ROS Node.
+Port of PoMoCo to a ROS Node. The original code is a stand alone application and can be found at http://github.com/ArcBotics/PoMoCo .
 
 Install and Set Up
 ---------------------
@@ -11,11 +11,11 @@ I developed this under Ubuntu 12.10 and ROS groovy. Other operating systems may 
 
 * Go to http://ros.org and download ROS.
 * (Optional) Familiarize yourself with the basics of ROS.
-* Clone the repository (or your fork of it) into a directory on your `ROS_PACKAGE_PATH`
-* (Optional) If you plan on using the voice demo, install PocketSphinx
+* Clone the repository (or your fork of it) into a directory on your `ROS_PACKAGE_PATH` (e.g. your workspace).
+* (Optional) If you plan on using the voice demo, install PocketSphinx.
 * From a terminal, run `rospack profile`.
 * `roscd ROSPoMoCo` to ensure things are profiled correctly. If they are, you should cd into the cloned repository. Otherwise, check your `ROS_PACKAGE_PATH`.
-* Build all the code by running `make`
+* Build all the code by running `make`.
 * To start the voice demo run (from anywhere) `roslaunch ROSPoMoCo voice-control.launch`. It will take some time to start (and output a lot to the console) even if all goes well. You can get a better feel for what's going on using `rxgraph` and `rxconsole`.
 
 Current Features
@@ -37,14 +37,14 @@ TODO includes
 * Providing Access in ROS to all features under normal PoMoCo (and more!)
 * Clean code base.
 * Integration or creation of gait generation for arbitrary paths (move_base compatible ).
-* An optional simple GUI for monitoring and controlling hexy manually.
+* Optional simple GUIs for monitoring and controlling Hexy manually.
 * Complete ROS .launch files for various modes.
 * (Possible) C++ port of essentials for speed.
 
 Custom ROS messages
 ---------------------------
-* leg_pose defines the pose of a single leg. Primitive uint8s are used for angles, and should be converted into the 0 to 180 range before use.
-* pose defines the pose of the entire robot, and is composed of many leg_pose objects. The neck is currently not included in this description.
+* `leg_pose` defines the pose of a single leg. Primitive `uint8`s are used for angles, and should be converted into the 0 to 180 range before use.
+* `pose` defines the pose of the entire robot, and is composed of many `leg_pose` objects. The neck is currently not included in this description.
 
 License(s) and Warranty
 -----------------------------
@@ -57,7 +57,7 @@ I also implicitly assume that if you're pull requesting me, then you accept that
 
 Copyright 2013 Will Oursler
 
-Licensed under your choice of the Apache License, Version 2.0; the MIT Liscence; or LGPL3 (the "Licenses").
+Licensed under your choice of the Apache License, Version 2.0; the MIT License; or LGPL3 (the "Licenses").
 
 You may not use this work except in compliance with one of these Licenses. You may obtain a copy of the relevant License at:
 

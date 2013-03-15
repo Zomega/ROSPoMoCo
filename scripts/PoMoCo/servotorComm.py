@@ -33,6 +33,7 @@ class runMovement(threading.Thread):
 	def run(self):
 		self.function(*self.args)
 
+#TODO: Rewrite this class. Some of it is a mess.
 class SerialHandler(threading.Thread):
 
 	def __init__( self ):
@@ -154,12 +155,18 @@ class SerialHandler(threading.Thread):
 		
 # Software model of the Servator32 board.
 class Servotor32:
+	# Initialize the software. First a serial connection must be established.
+	# This may take up to 10 seconds. The Servotor will create it's own servo
+	# objects, which can be extracted with getServo.
+	# The rest should handle itself.
 	def __init__( self ):
 		# Open a serial connection to the board, if possible.
 		self.serialHandler = SerialHandler()
 		starttime = time.time()
 		while not ( self.serialHandler.serOpen or (time.time() - starttime > 10.0) ):
-			time.sleep(0.01) # Make sure we use a minimal amount of processor time.
+			# Make sure we use a minimal amount of processor time.
+			# In the worst case, we will wait a full tenth of a second after the connection opens.
+			time.sleep(0.1)
 		if self.serialHandler.serOpen == False:
 			rospy.logerr( "Connection to Servotor32 board failed. No robot movement will occur.")
 			
@@ -177,7 +184,9 @@ class Servotor32:
 		for serv in self.servos:
 			if self.servos[ serv ] == i:
 				return serv
-				
+	
+	# Detach (relax) all connected servos. It's generally bad
+	# to leave the servos running for long periods of time.		
 	def detachAll( self ):
 		for serv in self.servos:
 			serv.detach()
