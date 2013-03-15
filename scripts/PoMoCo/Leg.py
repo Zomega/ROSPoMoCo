@@ -16,7 +16,7 @@ from ROSPoMoCo.msg import leg_pose
 stepPerS = 5
 
 # TODO: Some of this class should move to the IK solver...
-class leg():
+class Leg():
 	#TODO what is simOrigin?
 	def __init__(self, name, hipServo, kneeServo, ankleServo,simOrigin=(0,3,0)):
 		self.name = name

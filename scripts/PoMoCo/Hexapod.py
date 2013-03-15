@@ -1,5 +1,5 @@
-from leg import *
-from neck import *
+from Leg import *
+from Neck import *
 
 # Import custom message data.
 import roslib
@@ -7,17 +7,17 @@ roslib.load_manifest('ROSPoMoCo')
 import rospy
 from ROSPoMoCo.msg import pose
 
-class hexapod():
+class Hexapod:
 
 	def __init__( self, con ):
 		self.con = con		
-		self.RF	= leg('rightFront',	con.getServo(24), con.getServo(25), con.getServo(26) )
-		self.RM	= leg('rightMid',	con.getServo(20), con.getServo(21), con.getServo(22) )
-		self.RB	= leg('rightBack',	con.getServo(16), con.getServo(17), con.getServo(18) )
+		self.RF	= Leg('rightFront',	con.getServo(24), con.getServo(25), con.getServo(26) )
+		self.RM	= Leg('rightMid',	con.getServo(20), con.getServo(21), con.getServo(22) )
+		self.RB	= Leg('rightBack',	con.getServo(16), con.getServo(17), con.getServo(18) )
 
-		self.LF	= leg('leftFront',	con.getServo(7),   con.getServo(6),   con.getServo(5) )
-		self.LM	= leg('leftMid',	con.getServo(11), con.getServo(10), con.getServo(9) )
-		self.LB	= leg('leftBack',	con.getServo(15), con.getServo(14), con.getServo(13) )
+		self.LF	= Leg('leftFront',	con.getServo(7),   con.getServo(6),   con.getServo(5) )
+		self.LM	= Leg('leftMid',	con.getServo(11), con.getServo(10), con.getServo(9) )
+		self.LB	= Leg('leftBack',	con.getServo(15), con.getServo(14), con.getServo(13) )
 
 		self.legs	= [
 					self.RF,
@@ -27,7 +27,7 @@ class hexapod():
 					self.LM,
 					self.LB]
 
-		self.neck	= neck( con.getServo(31) )
+		self.neck	= Neck( con.getServo(31) )
 
 		self.tripod1 = [self.RF,self.RB,self.LM]
 		self.tripod2 = [self.LF,self.LB,self.RM]

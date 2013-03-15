@@ -31,7 +31,7 @@ sys.path.append( scriptDirectory + '/PoMoCo')
 sys.path.append( scriptDirectory )
 
 import servotorComm
-from robot import hexapod
+from Hexapod import *
 
 ##############################################################################
 #	ROS functions
@@ -45,7 +45,6 @@ def callback(data):
 		move( moveName )
 	else:
 		rospy.logwarn( "Unknown move \"" + moveName + "\" sent. Ignoring." )
-		rospy.logwarn( str(moves) )
 	
 ##############################################################################
 #	PoMoCo functions
@@ -87,7 +86,7 @@ if __name__ == '__main__':
 	
 	# Set up the servo controller to run Hexy
 	rospy.loginfo("Initializing Hexapod Datastructures.")
-	hexy = hexapod(controller)
+	hexy = Hexapod(controller)
 	__builtins__.hexy = hexy # sets 'hexy' to be a global variable common to all modules
 	__builtins__.floor = 60  # this is the minimum level the legs will reach
 	

@@ -5,9 +5,9 @@ import serial.tools.list_ports
 import threading
 
 # Load servo architecture...
-from servo import *
-from virtual_servo import *
-from physical_servo import *
+from Servo import *
+from VirtualServo import *
+from PhysicalServo import *
 
 import roslib
 roslib.load_manifest('ROSPoMoCo')
@@ -20,7 +20,7 @@ BAUD_RATE = 9600
 
 # Used by the GUI to ensure responsiveness while running moves.
 # Depreciated, ROS can handle the specifics using topics...
-# TODO: Remove once GUI has been spun off.
+# TODO: Remove once GUI, etc has been spun off.
 # TODO: Move name translator node should keep a Queue?
 class runMovement(threading.Thread):
 
@@ -33,7 +33,7 @@ class runMovement(threading.Thread):
 	def run(self):
 		self.function(*self.args)
 
-class serHandler(threading.Thread):
+class SerialHandler(threading.Thread):
 
 	def __init__( self ):
 		threading.Thread.__init__( self )
@@ -156,7 +156,7 @@ class serHandler(threading.Thread):
 class Servotor32:
 	def __init__( self ):
 		# Open a serial connection to the board, if possible.
-		self.serialHandler = serHandler()
+		self.serialHandler = SerialHandler()
 		starttime = time.time()
 		while not ( self.serialHandler.serOpen or (time.time() - starttime > 10.0) ):
 			time.sleep(0.01) # Make sure we use a minimal amount of processor time.
@@ -164,7 +164,7 @@ class Servotor32:
 			rospy.logerr( "Connection to Servotor32 board failed. No robot movement will occur.")
 			
 		#TODO: This is not a very good name.
-		self.servos = { physical_servo( self ) : i for i in range(32) }
+		self.servos = { physicalServo( self ) : i for i in range(32) }
 		
 		# Ensure the physical servos relax.
 		self.detachAll()
@@ -182,6 +182,7 @@ class Servotor32:
 		for serv in self.servos:
 			serv.detach()
 			
+	# Allows a servo to notify the Servotor32 object that the physical servo should be update.
 	def notify( self, serv ):
 		try:
 			# If the servo should be tensed...

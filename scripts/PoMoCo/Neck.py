@@ -1,4 +1,4 @@
-class neck():
+class Neck():
 	def __init__(self, neckServo):
 		self.neckServo = neckServo
 

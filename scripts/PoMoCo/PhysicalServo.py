@@ -1,4 +1,4 @@
-from servo import *
+from Servo import *
 
 import roslib
 roslib.load_manifest('ROSPoMoCo')
@@ -17,10 +17,10 @@ def degree_to_uS( angle ):
 		
 	return timing
 	
-class physical_servo( servo ):
+class physicalServo( Servo ):
 	# Physical servos need a reference to the servo handler, so that they can notify it when they need to be physically updated.
 	def __init__( self, controller, position = 0, offset = 0, attached = False ):
-		servo.__init__( self, position, offset, attached )
+		Servo.__init__( self, position, offset, attached )
 		self.controller = controller
 		self.__calculateTiming__()
 	
@@ -31,7 +31,7 @@ class physical_servo( servo ):
 		
 	# Set the servo position in degrees, then notify the handler if we should move.
 	def setPosition( self, position ):
-		servo.setPosition( self, position )
+		Servo.setPosition( self, position )
 		self.__calculateTiming__()
 		
 		if self.isAttached():
@@ -39,7 +39,7 @@ class physical_servo( servo ):
 		
 	# Set the servo offset ( zero position ) in degrees, then notify the handler if we should move.
 	def setOffset( self, offset ):
-		servo.setOffset( self, position )
+		Servo.setOffset( self, position )
 		self.__calculateTiming__()
 		
 		if self.isAttached():
@@ -47,10 +47,10 @@ class physical_servo( servo ):
 
 	# Attach and tense the physical servo.
 	def attach( self ):
-		servo.attach( self )
+		Servo.attach( self )
 		self.controller.notify( self )
 
 	# Detach and relax the physical servo.
 	def detach( self ):
-		servo.detach( self )
+		Servo.detach( self )
 		self.controller.notify( self )

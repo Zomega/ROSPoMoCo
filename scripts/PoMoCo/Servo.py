@@ -1,6 +1,6 @@
 # Defines a general servo interface and the basics of it's operation.
 # If python supported it, this class would be abstract.
-class servo:
+class Servo:
 	# Define a general default constructor.
 	def __init__( self, position = 0, offset = 0, attached = False ):
 		self.position = position
