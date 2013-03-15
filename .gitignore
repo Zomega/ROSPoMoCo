@@ -1,7 +1,15 @@
+# Ignore servo offsets files...
+*.cfg
+
+# Ignore temp files.
 *~
 *#
+
+
+# Ignore compiled python.
 *.py[cod]
 
+# Ignore compiled ROS directories.
 msg_gen
 src
 
