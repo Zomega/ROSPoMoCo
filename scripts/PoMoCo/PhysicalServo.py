@@ -3,19 +3,6 @@ from Servo import *
 import roslib
 roslib.load_manifest('ROSPoMoCo')
 import rospy
-
-def degree_to_uS( angle ):
-	# Convert the value to uS...
-	timing = ( angle - 1500 ) / 11.1111111
-	
-	# Clip the output to bound within 500uS to 2500uS
-	# these are the limits of the servos
-	if timing < 500:
-		timing = 500
-	if timing > 2500:
-		timing = 2500
-		
-	return timing
 	
 class physicalServo( Servo ):
 	# Physical servos need a reference to the servo handler, so that they can notify it when they need to be physically updated.
@@ -26,8 +13,15 @@ class physicalServo( Servo ):
 	
 	# Caches the timing value so that it does not have to be calculated on the fly.
 	def __calculateTiming__( self ):
+		# Figure out the angle we need to actually send to the servo.
 		angle = self.getPosition() + self.getOffset()
-		self.__timing__ = degree_to_uS( angle )
+		# Convert into the corresponding uS.
+		self.__timing__ =  100 * ( angle - 1500 ) / 9.0
+		# Clip to the valid range.
+		if self.__timing__ < 500:
+			self.__timing__ = 500
+		if self.__timing__ > 2500:
+			self.__timing__ = 2500
 		
 	# Set the servo position in degrees, then notify the handler if we should move.
 	def setPosition( self, position ):

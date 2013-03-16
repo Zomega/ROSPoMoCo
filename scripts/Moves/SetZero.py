@@ -1,4 +1,4 @@
 # Move: Set Zero
 
-for servo in hexy.con.servos:
+for servo in hexy.servos:
 	servo.reset()
