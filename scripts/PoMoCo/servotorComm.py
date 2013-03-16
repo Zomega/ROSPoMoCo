@@ -206,5 +206,5 @@ class Servotor32:
 		# If the an exception is thrown, then keep going...
 		# TODO: what is the use case here precisely?
 		except Exception as e:
-			rospy.logwarn( "Attempts to use serial threw an exception: \"" + str( e ) + "\". Continuing..." )
+			pass#rospy.logwarn( "Attempts to use serial threw an exception: \"" + str( e ) + "\". Continuing..." )
 

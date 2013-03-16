@@ -26,16 +26,16 @@ class Leg():
 		
 	def getPose( self ):
 		currentPose = leg_pose()
-		currentPose.hip_angle = self.hipServo.getPosition()
-		currentPose.knee_angle = self.kneeServo.getPosition()
-		currentPose.ankle_angle = self.ankleServo.getPosition()
+		currentPose.hip = self.hipServo.getPose()
+		currentPose.knee = self.kneeServo.getPose()
+		currentPose.ankle = self.ankleServo.getPose()
 		return currentPose
 		
 	def setPose( self, newPose ):
 		# TODO: test...
-		self.hip( newPose.hip_angle )
-		self.knee( newPose.hip_angle )
-		self.ankle( newPose.ankle_angle )	
+		self.hipServo.setPose( newPose.hip )
+		self.kneeServo.setPose( newPose.knee )
+		self.ankleServo.setPose( newPose.ankle )	
 
 	def hip(self, deg):
 		if deg == "sleep":

@@ -43,6 +43,8 @@ class Hexapod:
 		currentPose.right_middle = self.RM.getPose()
 		currentPose.right_back = self.RB.getPose()
 		
+		currentPose.neck = self.neck.getPose()
+		
 		return currentPose
 		
 	def setPose( self, newPose ):
@@ -54,3 +56,5 @@ class Hexapod:
 		self.RF.setPose( newPose.right_front )
 		self.RM.setPose( newPose.right_middle )
 		self.RB.setPose( newPose.right_back )
+		
+		self.neck.setPose( newPose.neck )

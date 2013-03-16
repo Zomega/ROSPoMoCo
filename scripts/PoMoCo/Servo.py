@@ -1,3 +1,9 @@
+# Import custom message data.
+import roslib
+roslib.load_manifest('ROSPoMoCo')
+import rospy
+from ROSPoMoCo.msg import servo_pose
+
 # Defines a general servo interface and the basics of it's operation.
 # If python supported it, this class would be abstract.
 class Servo:
@@ -30,3 +36,18 @@ class Servo:
 	# Detach and relax the servo.
 	def detach( self ):
 		self.attached = False
+		
+	def getPose( self ):
+		currentPose = servo_pose()
+		
+		currentPose.attached = self.isAttached()
+		currentPose.position = self.getPosition()
+		
+		return currentPose
+		
+	def setPose( self, newPose ):
+		self.setPosition( newPose.position )
+		if newPose.attached:
+			self.attach()
+		else:
+			self.detach()

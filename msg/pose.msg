@@ -8,4 +8,7 @@ leg_pose right_front
 leg_pose right_middle
 leg_pose right_back
 
+# Define the neck's pose...
+servo_pose neck
+
 

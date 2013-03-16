@@ -4,3 +4,9 @@ class Neck():
 
 	def set( self, deg ):
 		self.neckServo.setPosition( deg )
+		
+	def getPose( self ):
+		return self.neckServo.getPose()
+		
+	def setPose( self, newPose ):
+		self.neckServo.setPose( newPose )
