@@ -8,11 +8,15 @@ import roslib
 roslib.load_manifest('ROSPoMoCo')
 import rospy
 
-#TODO: Rewrite this class. Some of it is a mess.
+startTime = time.clock()
+serialSends = []
+
+BAUD_RATE = 9600
+
 class SerialHandler(threading.Thread):
 
-	def __init__( self ):
-		threading.Thread.__init__( self )
+	def __init__(self):
+		threading.Thread.__init__(self)
 
 		self.ser = None
 
@@ -27,32 +31,31 @@ class SerialHandler(threading.Thread):
 
 		self.start()
 
-	def __del__( self ):
+	def __del__(self):
 		self.ser.close()
 
-	def run( self ):
+	def run(self):
 		self.connect()
 		while(True):
-			# If there are messages waiting, send the first one...
+			# Send waiting messages
+			send = False
 			if(len(self.sendQueue)>0):
-			
 				self.sendLock.acquire()
 				toSend = self.sendQueue.pop(0)
 				self.sendLock.release()
-				
+				send = True
+			else:
+				time.sleep(0.01) # Keeps infinite while loop from killing processor
+			if send:
 				sendTime = time.clock()-startTime
 				serialSends.append([float(sendTime),str(toSend)])
 				time.sleep(0.003)
-				# TODO: Determine if the double check of self.serOpen is needed.
 				if self.serOpen:
 					if self.ser.writable:
 						if self.serOpen:
-							toSend = toSend
-							self.ser.write( str(toSend) )
+							self.ser.write(str(toSend))
 							rospy.logdebug( "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1) )
-			
-			else:
-				time.sleep(0.01) # Keeps infinite while loop from wasting processor cycles.
+			#print "Sent '%s' to COM%d"%(str(toSend).strip('\r'),self.serNum+1)
 
 			# Retrieve waiting responses
 			# TODO: Don't need reading yet, holding off on fully implementing it till needed.
@@ -78,23 +81,24 @@ class SerialHandler(threading.Thread):
 							comList.append(thing)
 			
 			comList = list(set(comList))
-			rospy.loginfo( "Attempting to connect to Servotor" )
+			rospy.loginfo("Attempting to connect to the servator.")
 			for port in comList:
 					try:
 							ser = serial.Serial(port, baudrate= BAUD_RATE, timeout=2)
 							ser.write('V\n')
 							result = ser.readline()
 							if "SERVOTOR" in result:
-									rospy.loginfo( "Connect Successful! Connected on port:",port )
+									rospy.loginfo("Connect Successful! Connected on port: " + str(port) )
 									self.ser = ser
 									self.ser.flush()
 									self.serOpen = True
 									self.serNum = 1
 									break
-					except:
-							pass
+					except Exception as e:
+						rospy.logdebug( "exception!" + str( e ) )
+						pass
 			if self.serOpen == False:
-				rospy.logwarn( "Connection not yet open. Trying Windows Method.")
+				rospy.logerr("Trying Windows Method")
 				for i in range(1,100):
 					try:
 						try:
@@ -110,7 +114,7 @@ class SerialHandler(threading.Thread):
 						readReply = ser.readline()
 						#print "read:",readReply
 						if "SERVOTOR" in readReply:
-							rospy.loginfo( "Connect Successful! Connected on port COM"+str(i+1) )
+							rospy.loginfo("Connect Successful! Connected on port COM"+str(i+1) )
 							ser.flush()
 							self.ser = ser
 							self.serNum = i
@@ -120,8 +124,7 @@ class SerialHandler(threading.Thread):
 							ser.close()
 							pass
 					except:
-						pass
-						
+						pass				
 	def send( self, message ):
 		self.sendLock.acquire()
 		self.sendQueue.append( str( message ) )
